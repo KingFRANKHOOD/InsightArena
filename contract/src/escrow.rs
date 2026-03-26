@@ -1,8 +1,7 @@
-use soroban_sdk::{token, Address, Env};
+﻿use soroban_sdk::{token, Address, Env};
 
-use crate::config::{self, PERSISTENT_BUMP, PERSISTENT_THRESHOLD};
+use crate::config;
 use crate::errors::InsightArenaError;
-use crate::storage_types::DataKey;
 
 /// Transfer `amount` stroops from `predictor` into the contract's escrow.
 ///
@@ -109,6 +108,13 @@ pub fn transfer_fee(env: &Env, to: &Address, amount: i128) -> Result<(), Insight
 
     client.transfer(&contract, to, &amount);
     Ok(())
+}
+
+pub fn get_treasury_balance(env: &Env) -> i128 {
+    let cfg = crate::config::get_config(env).expect("Config missing");
+    let client = token::Client::new(env, &cfg.xlm_token);
+    let contract = env.current_contract_address();
+    client.balance(&contract)
 }
 
 #[cfg(test)]
